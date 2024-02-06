@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 class DotsProps{
   bool isVisible = false;
-  int score = 0;
 }
 
 class Dots extends StatefulWidget {
@@ -17,9 +16,12 @@ class Dots extends StatefulWidget {
 
 class _Dotstate extends State<Dots> {
 
-  List<DotsProps> dots = List.generate(400, (index) => DotsProps());
+  List<DotsProps> dots = List.generate(110, (index) => DotsProps());
   int score = 0;
   late Timer dotsTimer;
+  int speedUpPoints = 10;
+  int initialTime = 1000;
+  int misses = 0;
 
   @override
   void initState() {
@@ -28,15 +30,23 @@ class _Dotstate extends State<Dots> {
   }
 
   void startGame() {
-    dotsTimer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
+    dotsTimer = Timer.periodic(Duration(milliseconds: initialTime), (timer) {
       hideAllDots();
       showRandomDots();
+      if(score >= speedUpPoints) {
+        speedUpPoints += 1;
+        initialTime -= 20;
+        if(dotsTimer.isActive){
+        dotsTimer.cancel();
+        startGame();
+        }
+      }
      });
   }
 
   void hideAllDots() {
     setState(() {
-      dots.forEach((dot) {dot.isVisible = false;});
+      for (var dot in dots) {dot.isVisible = false;}
     });
   }
 
@@ -53,8 +63,39 @@ class _Dotstate extends State<Dots> {
       setState(() {
         dots[index].isVisible = false;
         score++;
+        misses = 0;
+      });
+    }else{
+      setState(() {
+        misses++;
+        if(misses>=2){
+          gameOver();
+        }
       });
     }
+  }
+
+  void gameOver() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Game Over'),
+          content: Text('Your final score is $score'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                score = 0;
+                startGame();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+    dotsTimer.cancel();
   }
 
   @override
@@ -67,41 +108,41 @@ class _Dotstate extends State<Dots> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pin Point'),
+        backgroundColor: Colors.black,
+        title: Text(
+            'Score: $score',
+            style: const TextStyle(fontSize: 20, color: Colors.amber),
+          ),
       ),
-      body: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 20,
-        ),
-        itemCount: dots.length,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () => onTapDot(index),
-            child: Container(
-              color: dots[index].isVisible ? Colors.white : Colors.black,
-              child: Center(
-                child: Text(
-                  dots[index].isVisible ? 'O' : '',
-                  style: TextStyle(fontSize: 40),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 8,
+          ),
+          itemCount: dots.length,
+          itemBuilder: (context, index) {
+            return GestureDetector(
+              onTap: () => onTapDot(index),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                color: dots[index].isVisible ? Colors.black : Colors.black,
+                ),
+                child: Center(
+                  child: Text(
+                    dots[index].isVisible ? '👾' : '',
+                    style: TextStyle(fontSize: 30, color: Colors.yellow),
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'Score: $score',
-            style: TextStyle(fontSize: 20),
-          ),
+            );
+          },
         ),
       ),
     );
   }
 }
 
-//when reaches 10 points speed up by 0.1 sec, change upto 20 points
 //when crosses 20 points also show 'X' and when it's pressed game over.
 //when crosses 30 points make it snake game
