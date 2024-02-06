@@ -45,14 +45,15 @@ class _Dotstate extends State<Dots> {
   }
 
   void hideAllDots() {
-    setState(() {
-      for (var dot in dots) {dot.isVisible = false;}
-    });
+      for (var dot in dots) {
+        dot.isVisible = false;
+      }
   }
 
   void showRandomDots() {
     Random random = Random();
     int randomIndex = random.nextInt(dots.length);
+    print(randomIndex);
     setState(() {
       dots[randomIndex].isVisible = true;
     });
@@ -60,18 +61,14 @@ class _Dotstate extends State<Dots> {
 
   void onTapDot(int index) {
     if(dots[index].isVisible){
-      setState(() {
         dots[index].isVisible = false;
         score++;
         misses = 0;
-      });
     }else{
-      setState(() {
         misses++;
         if(misses>=2){
           gameOver();
         }
-      });
     }
   }
 
@@ -80,7 +77,7 @@ class _Dotstate extends State<Dots> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Game Over'),
+          title: const Text('Game Over'),
           content: Text('Your final score is $score'),
           actions: <Widget>[
             TextButton(
@@ -89,7 +86,7 @@ class _Dotstate extends State<Dots> {
                 score = 0;
                 startGame();
               },
-              child: Text('OK'),
+              child: const Text('Retry'),
             ),
           ],
         );
@@ -117,7 +114,7 @@ class _Dotstate extends State<Dots> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 8,
           ),
           itemCount: dots.length,
@@ -127,12 +124,12 @@ class _Dotstate extends State<Dots> {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(50),
-                color: dots[index].isVisible ? Colors.black : Colors.black,
+                  color: Colors.black
                 ),
                 child: Center(
                   child: Text(
                     dots[index].isVisible ? '👾' : '',
-                    style: TextStyle(fontSize: 30, color: Colors.yellow),
+                    style: const TextStyle(fontSize: 30, color: Colors.yellow),
                   ),
                 ),
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pin_point/dots.dart';
+// import 'package:pin_point/snake.dart';
 
 void main() {
   runApp(const MyApp());
@@ -8,7 +9,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
